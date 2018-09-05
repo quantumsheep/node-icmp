@@ -1,0 +1,33 @@
+{
+  "name": "icmp",
+  "version": "1.0.0",
+  "description": "Internet Control Message Protocol in Node",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "contributors": [
+    {
+      "name": "Nathanael Demacon",
+      "email": "nathanael.dmc@outlook.fr"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/QuantumSheep/node-icmp.git"
+  },
+  "keywords": [
+    "icmp",
+    "ping",
+    "echo",
+    "monitor",
+    "monitoring",
+    "net",
+    "network"
+  ],
+  "author": "Nathanael Demacon <nathanael.dmc@outlook.fr>",
+  "license": "MIT",
+  "dependencies": {
+    "raw-socket": "^1.6.2"
+  }
+}
