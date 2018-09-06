@@ -38,11 +38,16 @@ class ICMP {
 
             socket.send(this.header, 0, 12, this.host, (err, bytes) => {
                 if (err) {
-                    reject(err);
+                    return reject(err);
                 }
+
+                this.start = process.hrtime()[1];
             });
 
             socket.on('message', (buffer, source) => {
+                this.end = process.hrtime()[1];
+                this.elapsed = (this.end - this.start) / 1000000;
+
                 const offset = 20;
                 const type = buffer.readUInt8(offset);
                 const code = buffer.readUInt8(offset + 1);
