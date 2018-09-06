@@ -1,42 +1,47 @@
 const raw = require('raw-socket');
+const net = require('net');
 
 class ICMP {
     constructor(ipv4, host) {
         this.host = host || ipv4;
         this.ip = ipv4;
 
-        this.header = Buffer.alloc(14);
-        this.header.writeUInt8(0x8, 0);
-        this.header.writeUInt16LE(process.pid, 4);
-        this.header.writeUInt16LE(this.checksum(), 2);
+        this.socket = raw.createSocket({
+            protocol: raw.Protocol.ICMP
+        });
 
         this.open = false;
         this.type = '';
         this.code = ''
     }
-
-    checksum() {
-        const buffer = Buffer.from(this.header);
-        let sum = 0;
-
-        for (let i = 0; i < buffer.length; i = i + 2) {
-            sum += buffer.readUIntLE(i, 2);
-        }
-
-        sum = (sum >> 16) + (sum & 0xFFFF);
-        sum += (sum >> 16);
-        sum = ~sum;
-
-        return (new Uint16Array([sum]))[0];
-    }
-
-    ping() {
+    
+    send(data = "") {
         return new Promise((resolve, reject) => {
-            const socket = raw.createSocket({
-                protocol: raw.Protocol.ICMP
-            });
+            const datastr = String(data);
 
-            socket.send(this.header, 0, 12, this.host, (err, bytes) => {
+            /**
+             * We need 8 bytes (4 octets) for ICMP headers and 1 byte more per data's char
+             */
+            const header = Buffer.alloc(8 + datastr.length);
+
+            /**
+             * Fill data part to prevent network leaking
+             */
+            header.fill(0, 8);
+
+            /**
+             * Type must defer to specify the IP family
+             */
+            const type = net.isIPv6(this.ip) ? 128 : 8;
+            header.writeUInt8(type, 0);
+
+            header.writeUInt8(0, 1);
+            header.writeUInt16BE(0, 2);
+            header.writeUInt16LE(process.pid, 4);
+            header.write(datastr, 8);
+            raw.writeChecksum(header, 2, raw.createChecksum(header));
+
+            this.socket.send(header, 0, header.length, this.host, (err, bytes) => {
                 if (err) {
                     return reject(err);
                 }
@@ -44,7 +49,7 @@ class ICMP {
                 this.start = process.hrtime()[1];
             });
 
-            socket.on('message', (buffer, source) => {
+            this.socket.on('message', (buffer, source) => {
                 this.end = process.hrtime()[1];
                 this.elapsed = (this.end - this.start) / 1000000;
 
@@ -52,17 +57,30 @@ class ICMP {
                 const type = buffer.readUInt8(offset);
                 const code = buffer.readUInt8(offset + 1);
 
-                socket.close();
+                this.socket.close();
 
                 this.parse(type, code);
 
                 resolve();
             });
 
-            socket.on('error', err => {
+            this.socket.on('error', err => {
                 reject(err);
             });
         });
+    }
+
+    static send(host, data) {
+        const obj = new this(host);
+
+        return new Promise((resolve, reject) => obj.send(data)
+            .then(() => resolve(obj))
+            .catch(err => reject(err))
+        );
+    }
+
+    ping() {
+        return this.send();
     }
 
     static ping(host) {
