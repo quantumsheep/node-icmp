@@ -2,8 +2,7 @@
 Internet Control Message Protocol implementation in Node (it has Promises).
 
 # How to install
-Install with npm: 
-> `npm install --save icmp`
+Install with npm: `npm install --save icmp`
 
 # How to use
 You can view examples in `example` directory.
@@ -42,13 +41,15 @@ ICMP response code, will be one from this array:
 
 
 ## Methods
-### (static) ICMP.ping(host: string): Promise<ICMP>
+Note: default `timeout` of each methods is `5000ms`.
+
+### (static) ICMP.ping(host: string, timeout?: number): Promise<ICMP>
 Send a ping to a specific host. Returns a Promise resolving an ICMP instance and rejecting an Error.
 
-### ICMP.ping(): Promise<ICMP>
+### ICMP.ping(timeout?: number): Promise<ICMP>
 Send a ping to the defined ICMP instance's host. Returns a Promise, resolving nothing and rejecting an Error.
 
-### (static) ICMP.send(host: string, data: string)
+### (static) ICMP.send(host: string, data?: string)
 Send data to a specific host through ICMP. Returns a Promise resolving an ICMP instance and rejecting an Error.
 
 ```js
@@ -59,8 +60,11 @@ icmp.send('10.43.65.9', "Hey, I'm sending a message!")
     .catch(err => console.log(err));
 ```
 
-### ICMP.send(data: string)
+### ICMP.send(data?: string, timeout?: number)
 Send data to the defined ICMP instance's host. Returns a Promise resolving nothing and rejecting an Error.
+
+### ICMP.close()
+Close the raw socket stream. Can be used to stop a request.
 
 ## License
 MIT
