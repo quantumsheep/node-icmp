@@ -14,7 +14,7 @@ class ICMP {
         this.type = '';
         this.code = ''
     }
-    
+
     send(data = "") {
         return new Promise((resolve, reject) => {
             const datastr = String(data);
@@ -70,7 +70,7 @@ class ICMP {
         });
     }
 
-    static send(host, data) {
+    static send(host, data = "") {
         const obj = new this(host);
 
         return new Promise((resolve, reject) => obj.send(data)
@@ -84,12 +84,7 @@ class ICMP {
     }
 
     static ping(host) {
-        const obj = new this(host);
-
-        return new Promise((resolve, reject) => obj.ping()
-            .then(() => resolve(obj))
-            .catch(err => reject(err))
-        );
+        return this.send(host);
     }
 
     parse(type, code) {
