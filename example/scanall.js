@@ -22,10 +22,9 @@ rl.question('IP (v4 or v6): ', ip => {
         const ping = ip => {
             icmp.ping(ip)
                 .then(obj => {
-                    console.log('ddd')
-                    // process.stdout.write(`${obj.host}   ${obj.open}\r${obj.open ? '\n' : ''}`);
-                    process.stdout.write(`${obj.host}   ${obj.open}`);
-                });
+                    process.stdout.write(`${obj.host}   ${obj.open}\r${obj.open ? '\n' : ''}`);
+                })
+                .catch(err => { });
         }
 
         const [first, second, third] = ipv4.split('.');

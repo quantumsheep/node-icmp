@@ -19,7 +19,7 @@ rl.question('IP (v4 or v6): ', ip => {
         setInterval(() => {
             icmp.ping(ipv4)
                 .then(obj => {
-                    console.log(obj.open);
+                    console.log(obj.open, obj.elapsed);
                 })
                 .catch(err => { });
         }, 1000);
