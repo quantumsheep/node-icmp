@@ -15,7 +15,11 @@ class ICMP {
         this.code = ''
     }
 
-    send(data = "") {
+    abort() {
+        this.socket.close();
+    }
+
+    send(data = "", timeout = 5000) {
         return new Promise((resolve, reject) => {
             const datastr = String(data);
 
@@ -46,6 +50,11 @@ class ICMP {
                     return reject(err);
                 }
 
+                setTimeout(() => {
+                    resolve();
+                    this.socket.close();
+                }, timeout);
+
                 this.start = process.hrtime()[1];
             });
 
@@ -70,7 +79,7 @@ class ICMP {
         });
     }
 
-    static send(host, data = "") {
+    static send(host, data = "", timeout = 5000) {
         const obj = new this(host);
 
         return new Promise((resolve, reject) => obj.send(data)
@@ -79,12 +88,12 @@ class ICMP {
         );
     }
 
-    ping() {
-        return this.send();
+    ping(timeout = 5000) {
+        return this.send('', timeout);
     }
 
-    static ping(host) {
-        return this.send(host);
+    static ping(host, timeout = 5000) {
+        return this.send(host, '', timeout);
     }
 
     parse(type, code) {
