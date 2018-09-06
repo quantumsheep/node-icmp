@@ -1,10 +1,20 @@
 const raw = require('raw-socket');
 const net = require('net');
+const dns = require('dns');
 
 class ICMP {
-    constructor(ipv4, host) {
-        this.host = host || ipv4;
-        this.ip = ipv4;
+    constructor(host) {
+        this.host = host;
+
+        if (net.isIP(host)) {
+            this.ip = host;
+        } else {
+            dns.resolveAny(host, (err, addr) => {
+                if (err) console.log(err);
+
+                this.ip = addr[0];
+            });
+        }
 
         this.socket = raw.createSocket({
             protocol: raw.Protocol.ICMP
@@ -15,8 +25,12 @@ class ICMP {
         this.code = ''
     }
 
-    abort() {
+    close() {
         this.socket.close();
+
+        if(this._timeout) {
+            clearTimeout(this._timeout);
+        }
     }
 
     send(data = "", timeout = 5000) {
@@ -50,9 +64,9 @@ class ICMP {
                     return reject(err);
                 }
 
-                setTimeout(() => {
+                this._timeout = setTimeout(() => {
                     resolve();
-                    this.socket.close();
+                    this.close();
                 }, timeout);
 
                 this.start = process.hrtime()[1];
@@ -66,7 +80,7 @@ class ICMP {
                 const type = buffer.readUInt8(offset);
                 const code = buffer.readUInt8(offset + 1);
 
-                this.socket.close();
+                this.close();
 
                 this.parse(type, code);
 
