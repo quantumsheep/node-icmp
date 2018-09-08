@@ -96,7 +96,7 @@ class ICMP {
     static send(host, data = "", timeout = 5000) {
         const obj = new this(host);
 
-        return new Promise((resolve, reject) => obj.send(data)
+        return new Promise((resolve, reject) => obj.send(data, timeout)
             .then(() => resolve(obj))
             .catch(err => reject(err))
         );
