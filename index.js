@@ -9,10 +9,10 @@ class ICMP {
         if (net.isIP(host)) {
             this.ip = host;
         } else {
-            dns.resolveAny(host, (err, addr) => {
+            dns.resolve4(host, (err, [addr]) => {
                 if (err) console.log(err);
 
-                this.ip = addr[0];
+                this.ip = addr;
             });
         }
 
