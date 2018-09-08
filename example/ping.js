@@ -6,22 +6,16 @@ const rl = readline.createInterface({
     input: process.stdin,
 });
 
-rl.question('IP (v4 or v6): ', ip => {
-    if (!net.isIP(ip)) {
-        return console.log('Invalid IP.');
-    }
+rl.question('Host : ', host => {
+    setInterval(async () => {
+        try {
+            console.log('Pinging...');
 
-    const rrtype = net.isIPv4(ip) ? 'A' : 'AAAA';
+            const obj = await icmp.ping(host);
 
-    dns.resolve(ip, rrtype, (err, [ipv4]) => {
-        if (err || !ipv4) return console.log(err);
-
-        setInterval(() => {
-            icmp.ping(ipv4)
-                .then(obj => {
-                    console.log(obj.open, obj.elapsed);
-                })
-                .catch(err => { });
-        }, 1000);
-    });
+            console.log(obj.open, obj.elapsed);
+        } catch (e) {
+            console.log(host, 'Error');
+        }
+    }, 1000);
 });
