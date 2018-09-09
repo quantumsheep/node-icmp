@@ -4,62 +4,46 @@ const dns = require('dns');
 
 class ICMP {
     constructor(host) {
-        this.host = host;
+        this._configuring = new Promise(resolve => {
+            this.host = host;
 
-        if (net.isIP(host)) {
-            this.ip = host;
-        } else {
-            dns.resolve4(host, (err, [addr]) => {
-                if (err) console.log(err);
+            if (net.isIP(host)) {
+                this.ip = host;
 
-                this.ip = addr;
+                resolve();
+            } else {
+                dns.resolve4(host, (err, [addr]) => {
+                    if (err) console.log(err);
+
+                    this.ip = addr;
+
+                    resolve();
+                });
+            }
+
+            this.socket = raw.createSocket({
+                protocol: raw.Protocol.ICMP
             });
-        }
 
-        this.socket = raw.createSocket({
-            protocol: raw.Protocol.ICMP
+            this.open = false;
+            this.type = '';
+            this.code = ''
         });
-
-        this.open = false;
-        this.type = '';
-        this.code = ''
     }
 
     close() {
         this.socket.close();
 
-        if(this._timeout) {
+        if (this._timeout) {
             clearTimeout(this._timeout);
         }
     }
 
-    send(data = "", timeout = 5000) {
-        return new Promise((resolve, reject) => {
-            const datastr = String(data);
+    _queue(header, timeout = 5000) {
+        return new Promise(async (resolve, reject) => {
+            await this._configuring;
 
-            /**
-             * We need 8 bytes (4 octets) for ICMP headers and 1 byte more per data's char
-             */
-            const header = Buffer.alloc(8 + datastr.length);
-
-            /**
-             * Fill data part to prevent network leaking
-             */
-            header.fill(0, 8);
-
-            /**
-             * Type must defer to specify the IP family
-             */
-            const type = net.isIPv6(this.ip) ? 128 : 8;
-            header.writeUInt8(type, 0);
-
-            header.writeUInt8(0, 1);
-            header.writeUInt16BE(0, 2);
-            header.writeUInt16LE(process.pid, 4);
-            header.write(datastr, 8);
-            raw.writeChecksum(header, 2, raw.createChecksum(header));
-
-            this.socket.send(header, 0, header.length, this.host, (err, bytes) => {
+            this.socket.send(header, 0, header.length, this.ip, (err, bytes) => {
                 if (err) {
                     return reject(err);
                 }
@@ -80,9 +64,9 @@ class ICMP {
                 const type = buffer.readUInt8(offset);
                 const code = buffer.readUInt8(offset + 1);
 
-                this.close();
-
                 this.parse(type, code);
+
+                this.close();
 
                 resolve();
             });
@@ -90,6 +74,40 @@ class ICMP {
             this.socket.on('error', err => {
                 reject(err);
             });
+        });
+    }
+
+    createHeader(data) {
+        const datastr = String(data);
+
+        /**
+         * We need 8 bytes (4 octets) for ICMP headers and 1 byte more per data's char
+         */
+        const header = Buffer.alloc(8 + datastr.length);
+
+        /**
+         * Fill data part to prevent network leaking
+         */
+        header.fill(0, 8);
+
+        /**
+         * Type must defer to specify the IP family
+         */
+        const type = net.isIPv6(this.ip) ? 128 : 8;
+        header.writeUInt8(type, 0);
+
+        header.writeUInt8(0, 1);
+        header.writeUInt16BE(0, 2);
+        header.writeUInt16LE(process.pid, 4);
+        header.write(datastr, 8);
+        return raw.writeChecksum(header, 2, raw.createChecksum(header));
+    }
+
+    send(data = "", timeout = 5000) {
+        return new Promise((resolve, reject) => {
+            const header = this.createHeader(data);
+
+            this._queue(header, this.ip, timeout).then(resolve, reject);
         });
     }
 
