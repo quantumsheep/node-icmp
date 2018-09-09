@@ -6,6 +6,9 @@
   "directories": {
     "example": "example"
   },
+  "scripts": {
+    "test": "mocha"
+  },
   "contributors": [
     {
       "name": "Nathanael Demacon",
@@ -29,5 +32,8 @@
   "license": "MIT",
   "dependencies": {
     "raw-socket": "^1.6.2"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0"
   }
 }
