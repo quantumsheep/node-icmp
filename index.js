@@ -4,31 +4,17 @@ const dns = require('dns');
 
 class ICMP {
     constructor(host) {
-        this._configuring = new Promise(resolve => {
-            this.host = host;
+        this.host = host;
 
-            if (net.isIP(host)) {
-                this.ip = host;
+        this.ip = '';
 
-                resolve();
-            } else {
-                dns.resolve4(host, (err, [addr]) => {
-                    if (err) console.log(err);
-
-                    this.ip = addr;
-
-                    resolve();
-                });
-            }
-
-            this.socket = raw.createSocket({
-                protocol: raw.Protocol.ICMP
-            });
-
-            this.open = false;
-            this.type = '';
-            this.code = ''
+        this.socket = raw.createSocket({
+            protocol: raw.Protocol.ICMP
         });
+
+        this.open = false;
+        this.type = '';
+        this.code = '';
     }
 
     close() {
@@ -39,11 +25,36 @@ class ICMP {
         }
     }
 
+    _resolveIP() {
+        return new Promise(resolve => {
+            if (!this.ip) {
+                if (net.isIPv4(this.ip)) {
+                    this.ip = this.host;
+                    return resolve();
+                }
+
+                dns.resolve4(this.host, (err, [ip]) => {
+                    if (err) return reject(err);
+
+                    this.ip = ip;
+
+                    resolve();
+                });
+            } else {
+                resolve();
+            }
+        });
+    }
+
     _queue(header, timeout = 5000) {
         return new Promise(async (resolve, reject) => {
-            await this._configuring;
+            try {
+                await this._resolveIP();
+            } catch (e) {
+                return reject(e);
+            }
 
-            this.socket.send(header, 0, header.length, this.ip, (err, bytes) => {
+            this.socket.send(header, 0, header.length, this.ip, (err, source) => {
                 if (err) {
                     return reject(err);
                 }
@@ -91,14 +102,14 @@ class ICMP {
         header.fill(0, 8);
 
         /**
-         * Type must defer to specify the IP family
+         * Type
          */
-        const type = net.isIPv6(this.ip) ? 128 : 8;
-        header.writeUInt8(type, 0);
+        header.writeUInt8(8, 0);
 
         header.writeUInt8(0, 1);
         header.writeUInt16BE(0, 2);
-        header.writeUInt16LE(process.pid, 4);
+
+        header.writeUInt16LE(process.pid % 65535, 4);
         header.write(datastr, 8);
         return raw.writeChecksum(header, 2, raw.createChecksum(header));
     }
@@ -107,7 +118,7 @@ class ICMP {
         return new Promise((resolve, reject) => {
             const header = this.createHeader(data);
 
-            this._queue(header, this.ip, timeout).then(resolve, reject);
+            this._queue(header, timeout).then(resolve, reject);
         });
     }
 
