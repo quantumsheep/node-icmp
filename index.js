@@ -68,8 +68,10 @@ class ICMP {
             });
 
             this.socket.on('message', (buffer, source) => {
-                this.end = process.hrtime()[1];
-                this.elapsed = (this.end - this.start) / 1000000;
+                const NS_PER_SEC = 1e9;
+                
+                this.diff = process.hrtime(this.start);
+                this.elapsed = (this.diff[0]  + this.diff[1] / NS_PER_SEC) * 1000;
 
                 const offset = 20;
                 const type = buffer.readUInt8(offset);
