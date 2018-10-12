@@ -28,7 +28,7 @@ class ICMP {
     _resolveIP() {
         return new Promise(resolve => {
             if (!this.ip) {
-                if (net.isIPv4(this.ip)) {
+                if (net.isIPv4(this.host)) {
                     this.ip = this.host;
                     return resolve();
                 }
@@ -69,7 +69,7 @@ class ICMP {
 
             this.socket.on('message', (buffer, source) => {
                 const NS_PER_SEC = 1e9;
-                
+
                 this.diff = process.hrtime(this.start);
                 this.elapsed = (this.diff[0]  + this.diff[1] / NS_PER_SEC) * 1000;
 
