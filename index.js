@@ -64,7 +64,7 @@ class ICMP {
                     this.close();
                 }, timeout);
 
-                this.start = process.hrtime()[1];
+                this.start = process.hrtime();
             });
 
             this.socket.on('message', (buffer, source) => {
