@@ -62,6 +62,12 @@ icmp.send('10.43.65.9', "Hey, I'm sending a message!")
 ### ICMP.send(data?: string, timeout?: number)
 Send data to the defined ICMP instance's host. Returns a Promise resolving nothing and rejecting an Error.
 
+### (static) ICMP.listen(cb: (buffer, source) => void)
+Listen to incomming ICMP requests.
+
+### ICMP.listen(cb: (buffer, source) => void)
+Listen to incomming ICMP requests.
+
 ### ICMP.close()
 Close the raw socket stream. Can be used to stop a request.
 
