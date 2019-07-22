@@ -1,24 +1,22 @@
-# Internet Control Message Protocol in Node
-Internet Control Message Protocol implementation in Node (it has Promises).
+<h1 align="center">Internet Control Message Protocol in Node</h1>
+<p>
+  <img alt="Version" src="https://img.shields.io/npm/v/icmp.svg">
+  <a href="https://twitter.com/qtmsheep">
+    <img alt="Twitter: qtmsheep" src="https://img.shields.io/twitter/follow/qtmsheep.svg?style=social" target="_blank" />
+  </a>
+</p>
 
-# How to install
-Install with npm: `npm install icmp`  
-On Windows, the Windows Build Tools are required: `npm install -g windows-build-tools`
+> Internet Control Message Protocol in Node
 
-# How to use
-You can view examples in `example` directory.
+# Install
 
-### Little example for lazy peoples who don't want to open `exemple` directory
-Here's how to find if a network card is receiving or not (basic ping) -->
-```js
-const icmp = require('icmp');
-
-icmp.ping(ipv4)
-    .then(obj => console.log(obj.open))
-    .catch(err => { });
+```sh
+npm install icmp
 ```
 
-# Usage:
+On Windows, the Windows Build Tools are required: `npm install -g windows-build-tools`
+
+# Usage
 ## Properties
 ### ICMP.host: string
 The requested HOST (can be an IP)
@@ -67,5 +65,13 @@ Send data to the defined ICMP instance's host. Returns a Promise resolving nothi
 ### ICMP.close()
 Close the raw socket stream. Can be used to stop a request.
 
-## License
-MIT
+# Author
+
+👤 **Nathanael Demacon**
+
+* Twitter: [@qtmsheep](https://twitter.com/qtmsheep)
+* Github: [@quantumsheep](https://github.com/quantumsheep)
+
+# Show your support
+
+Give a ⭐️ if this project helped you!
