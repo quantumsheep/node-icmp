@@ -71,7 +71,7 @@ class ICMP {
                 const NS_PER_SEC = 1e9;
 
                 this.diff = process.hrtime(this.start);
-                this.elapsed = (this.diff[0]  + this.diff[1] / NS_PER_SEC) * 1000;
+                this.elapsed = (this.diff[0] + this.diff[1] / NS_PER_SEC) * 1000;
 
                 const offset = 20;
                 const type = buffer.readUInt8(offset);
@@ -139,6 +139,15 @@ class ICMP {
 
     static ping(host, timeout = 5000) {
         return this.send(host, '', timeout);
+    }
+
+    listen(cb = (buffer, source) => {}) {
+        return this.socket.on('message', cb);
+    }
+
+    static listen(cb = (buffer, source) => {}) {
+        const obj = new this(null);
+        return obj.listen(cb);
     }
 
     parse(type, code) {
