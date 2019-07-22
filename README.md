@@ -2,7 +2,8 @@
 Internet Control Message Protocol implementation in Node (it has Promises).
 
 # How to install
-Install with npm: `npm install --save icmp`
+Install with npm: `npm install icmp`  
+On Windows, the Windows Build Tools are required: `npm install -g windows-build-tools`
 
 # How to use
 You can view examples in `example` directory.
