@@ -31,7 +31,7 @@
   "author": "Nathanael Demacon <nathanael.dmc@outlook.fr>",
   "license": "MIT",
   "dependencies": {
-    "raw-socket": "^1.6.2"
+    "raw-socket": "^1.7.0"
   },
   "devDependencies": {
     "mocha": "^5.2.0"
