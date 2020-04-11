@@ -26,17 +26,17 @@ class ICMP {
     }
 
     _resolveIP() {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             if (!this.ip) {
                 if (net.isIPv4(this.host)) {
                     this.ip = this.host;
                     return resolve();
                 }
 
-                dns.resolve4(this.host, (err, [ip]) => {
+                dns.resolve4(this.host, (err, ips) => {
                     if (err) return reject(err);
 
-                    this.ip = ip;
+                    this.ip = ips[0];
 
                     resolve();
                 });

@@ -49,16 +49,32 @@ describe('Online ICMP', () => {
             const ping = icmp.ping('www.google.com');
 
             try {
-                it('ip property is an IP', async (done) => {
-                    const { ip } = await ping;
-
-                    assert(net.isIP(ip) >= 0, true);
+                it('ip property is an IP', (done) => {
+                    ping.then(({ ip }) => {
+                      assert(net.isIP(ip) >= 0, true);
+                      done();
+                    });
                 });
 
                 it('open property is true', async () => {
                     const { open } = await ping;
 
                     assert(open, true);
+                });
+            } catch (e) { assert.fail(e) }
+        });
+
+        describe('ping a non-existing DNS', () => {
+            const ping = icmp.ping('this-dns-does.not.exist');
+
+            try {
+                it('rejects with the error object', (done) => {
+                    ping.catch(error => {
+                        assert(error.message.indexOf('ENOTFOUND this-dns-does.not.exist'));
+                        assert(error.code === 'ENOTFOUND');
+                        assert(error.hostname === 'this-dns-does.not.exist');
+                        done();
+                    });
                 });
             } catch (e) { assert.fail(e) }
         });
