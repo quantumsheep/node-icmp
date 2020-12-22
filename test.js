@@ -16,26 +16,26 @@ const check = new Promise(resolve => {
     });
 });
 
-describe('Offline ICMP', () => {
-    describe('ping 127.0.0.1', () => {
-        const ping = icmp.ping('127.0.0.1');
+// describe('Offline ICMP', () => {
+//     describe('ping 127.0.0.1', () => {
+//         const ping = icmp.ping('127.0.0.1');
 
-        try {
-            it('ip property is 127.0.0.1', async () => {
-                const { ip } = await ping;
-                console.log(ip)
+//         try {
+//             it('ip property is 127.0.0.1', async () => {
+//                 const { ip } = await ping;
+//                 console.log(ip)
 
-                assert.strictEqual(ip, '127.0.0.1');
-            });
+//                 assert.strictEqual(ip, '127.0.0.1');
+//             });
 
-            it('open property is true', async () => {
-                const { open } = await ping;
+//             it('open property is true', async () => {
+//                 const { open } = await ping;
 
-                assert.strictEqual(open, true);
-            });
-        } catch (e) { fail(e) }
-    });
-});
+//                 assert.strictEqual(open, true);
+//             });
+//         } catch (e) { fail(e) }
+//     });
+// });
 
 describe('Online ICMP', () => {
     it('internet connection', () => {
