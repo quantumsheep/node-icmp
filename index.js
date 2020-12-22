@@ -68,20 +68,22 @@ class ICMP {
             });
 
             this.socket.on('message', (buffer, source) => {
-                const NS_PER_SEC = 1e9;
+                if (source === this.ip) {
+                    const NS_PER_SEC = 1e9;
 
-                this.diff = process.hrtime(this.start);
-                this.elapsed = (this.diff[0] + this.diff[1] / NS_PER_SEC) * 1000;
+                    this.diff = process.hrtime(this.start);
+                    this.elapsed = (this.diff[0] + this.diff[1] / NS_PER_SEC) * 1000;
 
-                const offset = 20;
-                const type = buffer.readUInt8(offset);
-                const code = buffer.readUInt8(offset + 1);
+                    const offset = 20;
+                    const type = buffer.readUInt8(offset);
+                    const code = buffer.readUInt8(offset + 1);
 
-                this.parse(type, code);
+                    this.parse(type, code);
 
-                this.close();
+                    this.close();
 
-                resolve();
+                    resolve();
+                }
             });
 
             this.socket.on('error', err => {
@@ -116,21 +118,16 @@ class ICMP {
         return raw.writeChecksum(header, 2, raw.createChecksum(header));
     }
 
-    send(data = "", timeout = 5000) {
-        return new Promise((resolve, reject) => {
-            const header = this.createHeader(data);
-
-            this._queue(header, timeout).then(resolve, reject);
-        });
+    async send(data = "", timeout = 5000) {
+        const header = this.createHeader(data);
+        return await this._queue(header, timeout);
     }
 
-    static send(host, data = "", timeout = 5000) {
-        const obj = new this(host);
+    static async send(host, data = "", timeout = 5000) {
+        const obj = new ICMP(host);
 
-        return new Promise((resolve, reject) => obj.send(data, timeout)
-            .then(() => resolve(obj))
-            .catch(err => reject(err))
-        );
+        await obj.send(data, timeout);
+        return obj;
     }
 
     ping(timeout = 5000) {
@@ -141,12 +138,12 @@ class ICMP {
         return this.send(host, '', timeout);
     }
 
-    listen(cb = (buffer, source) => {}) {
+    listen(cb = (buffer, source) => { }) {
         return this.socket.on('message', cb);
     }
 
-    static listen(cb = (buffer, source) => {}) {
-        const obj = new this(null);
+    static listen(cb = (buffer, source) => { }) {
+        const obj = new ICMP(null);
         return obj.listen(cb);
     }
 
