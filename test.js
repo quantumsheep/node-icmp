@@ -4,31 +4,10 @@ const net = require('net');
 
 const icmp = require('./index');
 
-describe('Offline ICMP', () => {
-    describe('ping localhost', () => {
-        const ping = icmp.ping('localhost', 1900);
-
-        try {
-            it('ip property is 127.0.0.1', async () => {
-                const { ip } = await ping;
-
-                assert(ip, '127.0.0.1');
-            });
-
-            it('open property is true', async () => {
-                const { open } = await ping;
-
-                assert(open, true);
-            });
-        } catch (e) { assert.fail(e) }
-    });
-});
 const check = new Promise(resolve => {
     dns.lookup('google.com', (err) => {
         if (err && err.code == "ENOTFOUND") {
-            assert.fail();
-
-            resolve(false);
+            fail();
         } else {
             assert.ok(true);
 
@@ -37,9 +16,30 @@ const check = new Promise(resolve => {
     });
 });
 
+describe('Offline ICMP', () => {
+    describe('ping 127.0.0.1', () => {
+        const ping = icmp.ping('127.0.0.1');
+
+        try {
+            it('ip property is 127.0.0.1', async () => {
+                const { ip } = await ping;
+                console.log(ip)
+
+                assert.strictEqual(ip, '127.0.0.1');
+            });
+
+            it('open property is true', async () => {
+                const { open } = await ping;
+
+                assert.strictEqual(open, true);
+            });
+        } catch (e) { fail(e) }
+    });
+});
+
 describe('Online ICMP', () => {
     it('internet connection', () => {
-        check.then(res => res ? assert.ok(true) : assert.fail());
+        check.then(res => res ? assert.ok(true) : fail());
     });
 
     check.then(res => {
@@ -52,7 +52,7 @@ describe('Online ICMP', () => {
                 it('ip property is an IP', async () => {
                     const { ip } = await ping;
 
-                    assert(net.isIP(ip) !== 0);
+                    assert.notStrictEqual(net.isIP(ip), 0);
                 });
 
                 it('open property is true', async () => {
@@ -60,12 +60,12 @@ describe('Online ICMP', () => {
 
                     assert(open);
                 });
-            } catch (e) { assert.fail(e) }
+            } catch (e) { fail(e) }
         });
 
-        describe('ping a non-existing DNS', async () => {
+        describe('ping a non-existing domain', async () => {
             try {
-                await icmp.ping('this-dns-does.not.exist');
+                await icmp.ping('this-domain-does.not.exist');
             } catch (error) {
                 try {
                     it('rejects with the error object', (done) => {
@@ -76,7 +76,7 @@ describe('Online ICMP', () => {
                             done();
                         })
                     });
-                } catch (e) { assert.fail(e) }
+                } catch (e) { fail(e) }
             }
         });
     });
