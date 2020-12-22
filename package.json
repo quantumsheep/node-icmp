@@ -1,6 +1,6 @@
 {
   "name": "icmp",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Internet Control Message Protocol in Node",
   "main": "index.js",
   "directories": {
