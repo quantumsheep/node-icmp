@@ -1,12 +1,8 @@
-<h1 align="center">Internet Control Message Protocol in Node</h1>
-<p>
-  <img alt="Version" src="https://img.shields.io/npm/v/icmp.svg">
-  <a href="https://twitter.com/qtmsheep">
-    <img alt="Twitter: qtmsheep" src="https://img.shields.io/twitter/follow/qtmsheep.svg?style=social" target="_blank" />
-  </a>
-</p>
+# Internet Control Message Protocol in Node
+[![npm](https://img.shields.io/npm/v/icmp)](https://www.npmjs.com/package/icmp)
+[![Twitter: qtmsheep](https://img.shields.io/twitter/follow/qtmsheep.svg?style=social)](https://twitter.com/qtmsheep)
 
-> Internet Control Message Protocol in Node
+Node wrapper for the ICMP protocol.
 
 # Install
 
@@ -14,7 +10,7 @@
 npm install icmp
 ```
 
-On Windows, the Windows Build Tools are required: `npm install -g windows-build-tools`
+On Windows, Windows Build Tools are required: `npm install -g windows-build-tools`
 
 # Usage
 ## Properties
