@@ -13,6 +13,15 @@ npm install icmp
 On Windows, Windows Build Tools are required: `npm install -g windows-build-tools`
 
 # Usage
+
+```js
+const ICMP = require('icmp')
+```
+or
+```ts
+import * as ICMP from 'icmp';
+```
+
 ## Properties
 ### ICMP.host: string
 The requested HOST (can be an IP)
